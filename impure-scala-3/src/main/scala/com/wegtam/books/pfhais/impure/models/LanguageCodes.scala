@@ -11,9 +11,9 @@
 
 package com.wegtam.books.pfhais.impure.models
 
-import io.github.iltotore.iron.{ *, given }
-import io.github.iltotore.iron.constraint.string.*
 import com.wegtam.books.pfhais.impure.models.LanguageCode
+import io.github.iltotore.iron.constraint.string.*
+import io.github.iltotore.iron.given
 
 object LanguageCodes:
 

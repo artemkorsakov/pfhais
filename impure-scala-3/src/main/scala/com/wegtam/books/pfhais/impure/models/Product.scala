@@ -11,15 +11,12 @@
 
 package com.wegtam.books.pfhais.impure.models
 
-import java.util.UUID
-
 import cats.*
 import cats.data.*
 import cats.implicits.*
 import io.circe.*
-import io.github.iltotore.iron.circe.given
-import io.github.iltotore.iron.constraint.all.*
-import io.github.iltotore.iron.{*, given}
+
+import java.util.UUID
 
 /** A product.
   *

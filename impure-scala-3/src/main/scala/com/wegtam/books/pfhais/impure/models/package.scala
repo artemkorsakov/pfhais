@@ -14,7 +14,7 @@ package com.wegtam.books.pfhais.impure
 import cats.*
 import cats.syntax.order.*
 import io.github.iltotore.iron.constraint.all.*
-import io.github.iltotore.iron.{*, given}
+import io.github.iltotore.iron.*
 
 import java.util.UUID
 

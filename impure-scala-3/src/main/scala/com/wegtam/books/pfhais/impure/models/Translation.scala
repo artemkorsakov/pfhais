@@ -16,7 +16,7 @@ import cats.syntax.order.*
 import io.circe.*
 import io.github.iltotore.iron.circe.given
 import io.github.iltotore.iron.constraint.all.*
-import io.github.iltotore.iron.{*, given}
+import io.github.iltotore.iron.*
 
 /** The translation data for a product name.
   *
@@ -46,11 +46,8 @@ object Translation:
       n <- maybePN
     yield Translation(lang = l, name = n)
 
-  given Decoder[Translation] =
-    Decoder.forProduct2("lang", "name")(Translation.apply)
+  given Decoder[Translation] = Decoder.forProduct2("lang", "name")(Translation.apply)
 
-  given Encoder[Translation] =
-    Encoder.forProduct2("lang", "name")(t => (t.lang, t.name))
+  given Encoder[Translation] = Encoder.forProduct2("lang", "name")(t => (t.lang, t.name))
 
-  given Order[Translation] = (x: Translation, y: Translation) =>
-    x.lang.compare(y.lang)
+  given Order[Translation] = (x: Translation, y: Translation) => x.lang.compare(y.lang)
