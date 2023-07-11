@@ -26,10 +26,10 @@ lazy val impure =
         library.catsCore,
         library.circeCore,
         library.circeGeneric,
-        library.circeRefined,
         library.circeParser,
         library.flywayCore,
         library.ironCats,
+        library.ironCirce,
         library.ironCore,
         library.logback,
         library.postgresql,
@@ -81,11 +81,11 @@ lazy val library =
     val catsCore          = "org.typelevel"      %% "cats-core"           % Version.cats
     val circeCore         = "io.circe"           %% "circe-core"          % Version.circe
     val circeGeneric      = "io.circe"           %% "circe-generic"       % Version.circe
-    val circeRefined      = "io.circe"           %% "circe-refined"       % Version.circe
     val circeParser       = "io.circe"           %% "circe-parser"        % Version.circe
     val flywayCore        = "org.flywaydb"        % "flyway-core"         % Version.flyway
     val ironCore          = "io.github.iltotore" %% "iron"                % Version.iron
     val ironCats          = "io.github.iltotore" %% "iron-cats"           % Version.iron
+    val ironCirce         = "io.github.iltotore" %% "iron-circe"          % Version.iron
     val ironScalaCheck    = "io.github.iltotore" %% "iron-scalacheck"     % Version.iron
     val logback           = "ch.qos.logback"      % "logback-classic"     % Version.logback
     val postgresql        = "org.postgresql"      % "postgresql"          % Version.postgresql
