@@ -47,8 +47,7 @@ object Product:
       p          <- Product(id = id, names = NonEmptySet.one[Translation](t)).some
     yield p
     po.map(p =>
-      rows.drop(1).foldLeft(p) { (a, cols) =>
-        val (_, c, n) = cols
+      rows.drop(1).foldLeft(p) { case (a, (_, c, n)) =>
         Translation.fromUnsafe(c)(n).fold(a)(t => a.copy(names = a.names.add(t)))
       }
     )

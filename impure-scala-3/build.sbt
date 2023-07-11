@@ -11,7 +11,6 @@ lazy val impure =
     .settings(
       Defaults.itSettings,
       headerSettings(IntegrationTest),
-      inConfig(IntegrationTest)(scalafmtSettings),
       IntegrationTest / console / scalacOptions --= Seq("-Xfatal-warnings", "-Ywarn-unused-import"),
       IntegrationTest / parallelExecution          := false,
       IntegrationTest / unmanagedSourceDirectories := Seq((IntegrationTest / scalaSource).value)
@@ -100,8 +99,7 @@ lazy val library =
 // *****************************************************************************
 
 lazy val settings =
-  commonSettings ++
-    scalafmtSettings
+  commonSettings
 
 val licenseText = s"""CC0 1.0 Universal (CC0 1.0) - Public Domain Dedication
                    |
@@ -134,9 +132,4 @@ lazy val commonSettings =
     Compile / compile / wartremoverWarnings ++= Warts.unsafe,
     Test / console / scalacOptions --= Seq("-Xfatal-warnings", "-Ywarn-unused-import"),
     Test / unmanagedSourceDirectories := Seq((Test / scalaSource).value)
-  )
-
-lazy val scalafmtSettings =
-  Seq(
-    scalafmtOnCompile := true
   )
