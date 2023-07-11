@@ -29,22 +29,22 @@ lazy val impure =
         library.circeRefined,
         library.circeParser,
         library.flywayCore,
+        library.ironCats,
+        library.ironCore,
         library.logback,
         library.postgresql,
-        library.refinedCats,
-        library.refinedCore,
         library.slick,
         library.slickHikariCP,
         library.akkaHttpTestkit   % IntegrationTest,
         library.akkaStreamTestkit % IntegrationTest,
         library.akkaTestkit       % IntegrationTest,
-        library.refinedScalaCheck % IntegrationTest,
+        library.ironScalaCheck    % IntegrationTest,
         library.scalaCheck        % IntegrationTest,
         library.scalaTest         % IntegrationTest,
         library.akkaHttpTestkit   % Test,
         library.akkaStreamTestkit % Test,
         library.akkaTestkit       % Test,
-        library.refinedScalaCheck % Test,
+        library.ironScalaCheck    % Test,
         library.scalaCheck        % Test,
         library.scalaTest         % Test
       )
@@ -57,22 +57,22 @@ lazy val impure =
 lazy val library =
   new {
     object Version {
-      val akka         = "2.8.0"
-      val akkaHttp     = "10.5.0"
+      val akka         = "2.8.3"
+      val akkaHttp     = "10.5.2"
       val akkaHttpJson = "1.39.2"
       val cats         = "2.9.0"
       val circe        = "0.14.5"
-      val flyway       = "9.16.0"
-      val logback      = "1.4.7"
-      val postgresql   = "42.5.4"
-      val refined      = "0.10.3"
+      val flyway       = "9.20.0"
+      val iron         = "2.1.0"
+      val logback      = "1.4.8"
+      val postgresql   = "42.6.0"
       val scalaCheck   = "1.17.0"
-      val scalaTest    = "3.2.15"
+      val scalaTest    = "3.2.16"
       val slick        = "3.5.0-M4"
     }
-    val akkaActor         = "com.typesafe.akka"  %% "akka-actor"          % Version.akka
-    val akkaTestkit       = "com.typesafe.akka"  %% "akka-testkit"        % Version.akka
-    val akkaHttp          = "com.typesafe.akka"  %% "akka-http"           % Version.akkaHttp
+    val akkaActor   = "com.typesafe.akka" %% "akka-actor"   % Version.akka
+    val akkaTestkit = "com.typesafe.akka" %% "akka-testkit" % Version.akka
+    val akkaHttp    = "com.typesafe.akka" %% "akka-http"    % Version.akkaHttp
 //    val akkaHttpJson      = ("de.heikoseeberger"  %% "akka-http-circe"     % Version.akkaHttpJson).cross(CrossVersion.for3Use2_13)
     val akkaHttpTestkit   = "com.typesafe.akka"  %% "akka-http-testkit"   % Version.akkaHttp
     val akkaSlf4j         = "com.typesafe.akka"  %% "akka-slf4j"          % Version.akka
@@ -84,11 +84,11 @@ lazy val library =
     val circeRefined      = "io.circe"           %% "circe-refined"       % Version.circe
     val circeParser       = "io.circe"           %% "circe-parser"        % Version.circe
     val flywayCore        = "org.flywaydb"        % "flyway-core"         % Version.flyway
+    val ironCore          = "io.github.iltotore" %% "iron"                % Version.iron
+    val ironCats          = "io.github.iltotore" %% "iron-cats"           % Version.iron
+    val ironScalaCheck    = "io.github.iltotore" %% "iron-scalacheck"     % Version.iron
     val logback           = "ch.qos.logback"      % "logback-classic"     % Version.logback
     val postgresql        = "org.postgresql"      % "postgresql"          % Version.postgresql
-    val refinedCore       = "eu.timepit"         %% "refined"             % Version.refined
-    val refinedCats       = "eu.timepit"         %% "refined-cats"        % Version.refined
-    val refinedScalaCheck = "eu.timepit"         %% "refined-scalacheck"  % Version.refined
     val scalaCheck        = "org.scalacheck"     %% "scalacheck"          % Version.scalaCheck
     val scalaTest         = "org.scalatest"      %% "scalatest"           % Version.scalaTest
     val slick             = "com.typesafe.slick" %% "slick"               % Version.slick
@@ -124,11 +124,11 @@ ThisBuild / scalacOptions ++=
 
 lazy val commonSettings =
   Seq(
-    scalaVersion       := "3.3.0",
-    organization       := "com.wegtam",
-    organizationName   := "Jens Grassel",
-    startYear          := Some(2019),
-    headerLicense      := Some(HeaderLicense.Custom(licenseText)),
+    scalaVersion     := "3.3.0",
+    organization     := "com.wegtam",
+    organizationName := "Jens Grassel",
+    startYear        := Some(2019),
+    headerLicense    := Some(HeaderLicense.Custom(licenseText)),
     Compile / console / scalacOptions --= Seq("-Xfatal-warnings", "-Ywarn-unused-import"),
     Compile / unmanagedSourceDirectories := Seq((Compile / scalaSource).value),
     Compile / compile / wartremoverWarnings ++= Warts.unsafe,

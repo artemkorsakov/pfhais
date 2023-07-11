@@ -11,34 +11,24 @@
 
 package com.wegtam.books.pfhais.impure
 
-import java.util.UUID
+import cats.*
+import cats.syntax.order.*
+import io.github.iltotore.iron.constraint.all.*
+import io.github.iltotore.iron.{*, given}
 
-import cats._
-import cats.syntax.order._
-import eu.timepit.refined._
-import eu.timepit.refined.api._
-import eu.timepit.refined.auto._
-import eu.timepit.refined.cats._
-import eu.timepit.refined.collection._
-import eu.timepit.refined.string._
+import java.util.UUID
 
 package object models {
 
   // A language code format according to ISO 639-1. Please note that this only verifies the format!
-  type LanguageCode = String Refined MatchesRegex[W.`"^[a-z]{2}$"`.T]
-  object LanguageCode extends RefinedTypeOps[LanguageCode, String] with CatsRefinedTypeOpsSyntax
+  type LanguageCode = String :| Match["^[a-z]{2}$"]
   // A product id which must be a valid UUID in version 4.
   type ProductId = UUID
   // A product name must be a non-empty string.
-  type ProductName = String Refined NonEmpty
-  object ProductName extends RefinedTypeOps[ProductName, String] with CatsRefinedTypeOpsSyntax
+  type ProductName = String :| Not[Empty]
 
-  implicit val orderLanguageCode: Order[LanguageCode] = new Order[LanguageCode] {
-    def compare(x: LanguageCode, y: LanguageCode): Int = x.value.compare(y.value)
-  }
+  given Order[LanguageCode] = (x: LanguageCode, y: LanguageCode) => x.compare(y)
 
-  implicit val orderProductName: Order[ProductName] = new Order[ProductName] {
-    def compare(x: ProductName, y: ProductName): Int = x.value.compare(y.value)
-  }
+  given Order[ProductName] = (x: ProductName, y: ProductName) => x.compare(y)
 
 }

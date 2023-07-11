@@ -11,9 +11,11 @@
 
 package com.wegtam.books.pfhais.impure.models
 
-import eu.timepit.refined.auto._
+import io.github.iltotore.iron.{ *, given }
+import io.github.iltotore.iron.constraint.string.*
+import com.wegtam.books.pfhais.impure.models.LanguageCode
 
-object LanguageCodes {
+object LanguageCodes:
 
   // A list of valid ISO-639-1 language codes.
   val all: Seq[LanguageCode] = Seq(
@@ -268,4 +270,4 @@ object LanguageCodes {
     "zw"
   )
 
-}
+end LanguageCodes
