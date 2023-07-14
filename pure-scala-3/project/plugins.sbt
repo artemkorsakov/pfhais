@@ -1,0 +1,7 @@
+addSbtPlugin("com.dwijnand"       % "sbt-dynver"      % "4.1.1")
+addSbtPlugin("pl.project13.scala" % "sbt-jmh"         % "0.4.4")
+addSbtPlugin("ch.epfl.scala"      % "sbt-scalafix"    % "0.11.0")
+addSbtPlugin("org.scalameta"      % "sbt-scalafmt"    % "2.5.0")
+addSbtPlugin("org.scoverage"      % "sbt-scoverage"   % "2.0.8")
+addSbtPlugin("de.heikoseeberger"  % "sbt-header"      % "5.10.0")
+addSbtPlugin("org.wartremover"    % "sbt-wartremover" % "3.1.3")

@@ -11,31 +11,31 @@
 
 package com.wegtam.books.pfhais.impure.api
 
-import akka.http.scaladsl.server.Directives._
-import com.wegtam.books.pfhais.impure.db._
-import com.wegtam.books.pfhais.impure.models._
-import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
-import eu.timepit.refined.auto._
+import akka.http.scaladsl.server.Directives.*
+import akka.http.scaladsl.server.Route
+import com.wegtam.books.pfhais.impure.db.*
+import com.wegtam.books.pfhais.impure.models.*
+//import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
 
 import scala.concurrent.{ ExecutionContext, Future }
 
-final class ProductRoutes(repo: Repository)(implicit ec: ExecutionContext) {
-  val routes = path("product" / JavaUUID) { id: ProductId =>
-    get {
-      rejectEmptyResponse {
-        complete {
-          for {
-            rows <- repo.loadProduct(id)
-            prod <- Future { Product.fromDatabase(rows) }
-          } yield prod
+final class ProductRoutes(repo: Repository)(implicit ec: ExecutionContext):
+  val routes: Route = path("product" / JavaUUID) {
+    id: ProductId =>
+      get {
+        rejectEmptyResponse {
+          complete {
+            for
+              rows <- repo.loadProduct(id)
+              prod <- Future(Product.fromDatabase(rows))
+            yield prod
+          }
+        }
+      } ~ put {
+        entity(as[Product]) { p =>
+          complete {
+            repo.updateProduct(p)
+          }
         }
       }
-    } ~ put {
-      entity(as[Product]) { p =>
-        complete {
-          repo.updateProduct(p)
-        }
-      }
-    }
   }
-}

@@ -13,38 +13,36 @@ package com.wegtam.books.pfhais.impure.db
 
 import java.util.UUID
 
-import cats.data._
-import com.wegtam.books.pfhais.impure.models._
-import eu.timepit.refined.auto._
-import slick.basic._
-import slick.jdbc._
+import cats.data.*
+import com.wegtam.books.pfhais.impure.models.*
+import slick.basic.*
+import slick.jdbc.*
 
 import scala.concurrent.Future
 
 // Wartremover seems to report different on scala 2.13.
 @SuppressWarnings(Array("org.wartremover.warts.Any"))
-final class Repository(val dbConfig: DatabaseConfig[JdbcProfile]) {
-  import dbConfig.profile.api._
+final class Repository(val dbConfig: DatabaseConfig[JdbcProfile]):
+  import dbConfig.profile.api.*
 
-  /**
-    * The Slick table definition for the products table.
+  /** The Slick table definition for the products table.
     *
-    * @param tag A tag marks a specific row represented by an AbstractTable instance.
+    * @param tag
+    *   A tag marks a specific row represented by an AbstractTable instance.
     */
-  final class Products(tag: Tag) extends Table[(UUID)](tag, "products") {
+  final class Products(tag: Tag) extends Table[UUID](tag, "products"):
     def id = column[UUID]("id", O.PrimaryKey)
 
-    def * = (id)
-  }
+    def * = id
+
   val productsTable = TableQuery[Products]
 
-  /**
-    * The Slick table definition for the table with the translations of the product
-    * names.
+  /** The Slick table definition for the table with the translations of the product names.
     *
-    * @param tag A tag marks a specific row represented by an AbstractTable instance.
+    * @param tag
+    *   A tag marks a specific row represented by an AbstractTable instance.
     */
-  final class Names(tag: Tag) extends Table[(UUID, String, String)](tag, "names") {
+  final class Names(tag: Tag) extends Table[(UUID, String, String)](tag, "names"):
     def productId = column[UUID]("product_id")
     def langCode  = column[String]("lang_code")
     def name      = column[String]("name")
@@ -58,90 +56,90 @@ final class Repository(val dbConfig: DatabaseConfig[JdbcProfile]) {
       )
 
     def * = (productId, langCode, name)
-  }
+  end Names
+
   val namesTable = TableQuery[Names]
 
-  /**
-    * Close the underlying database connection.
+  /** Close the underlying database connection.
     */
   def close(): Unit = dbConfig.db.close
 
-  /**
-    * Load a product from the database repository.
+  /** Load a product from the database repository.
     *
-    * @param id The unique ID of the product.
-    * @return A future holding a list of database rows for a single product
-    *         which you'll need to combine.
+    * @param id
+    *   The unique ID of the product.
+    * @return
+    *   A future holding a list of database rows for a single product which you'll need to combine.
     */
-  def loadProduct(id: ProductId): Future[Seq[(UUID, String, String)]] = {
-    val program = for {
-      (p, ns) <- productsTable
-        .filter(_.id === id)
-        .join(namesTable)
-        .on(_.id === _.productId)
-    } yield (p.id, ns.langCode, ns.name)
+  def loadProduct(id: ProductId): Future[Seq[(UUID, String, String)]] =
+    val program =
+      for (p, ns) <- productsTable
+          .filter(_.id === id)
+          .join(namesTable)
+          .on(_.id === _.productId)
+      yield (p.id, ns.langCode, ns.name)
     dbConfig.db.run(program.result)
-  }
 
-  /**
-    * Load all products from the database repository.
+  /** Load all products from the database repository.
     *
-    * @return A future holding a list of database rows which you'll need to combine.
+    * @return
+    *   A future holding a list of database rows which you'll need to combine.
     */
-  def loadProducts(): DatabasePublisher[(UUID, String, String)] = {
-    val program = for {
-      (p, ns) <- productsTable.join(namesTable).on(_.id === _.productId).sortBy(_._1.id)
-    } yield (p.id, ns.langCode, ns.name)
+  def loadProducts(): DatabasePublisher[(UUID, String, String)] =
+    val program =
+      for (p, ns) <- productsTable.join(namesTable).on(_.id === _.productId).sortBy(_._1.id)
+      yield (p.id, ns.langCode, ns.name)
     dbConfig.db.stream(program.result)
-  }
 
-  /**
-    * Save the given product in the database.
+  /** Save the given product in the database.
     *
-    * @param p A product to be saved.
-    * @return A future holding a list of affected database rows (product + translations).
+    * @param p
+    *   A product to be saved.
+    * @return
+    *   A future holding a list of affected database rows (product + translations).
     */
-  def saveProduct(p: Product): Future[List[Int]] = {
+  def saveProduct(p: Product): Future[List[Int]] =
     val cp      = productsTable += (p.id)
     val program = DBIO.sequence(cp :: saveTranslations(p).toList).transactionally
     dbConfig.db.run(program)
-  }
 
-  /**
-    * Update the given product in the database.
+  /** Update the given product in the database.
     *
-    * @param p The product to be updated.
-    * @return A future holding a list of affected database rows.
+    * @param p
+    *   The product to be updated.
+    * @return
+    *   A future holding a list of affected database rows.
     */
-  def updateProduct(p: Product): Future[List[Int]] = {
+  def updateProduct(p: Product): Future[List[Int]] =
     val program = namesTable
       .filter(_.productId === p.id)
       .delete
       .andThen(DBIO.sequence(saveTranslations(p).toList))
       .transactionally
     dbConfig.db.run(program)
-  }
 
-  /**
-    * Save the translations of the given product in the database, overwriting
-    * possibly existing ones.
+  /** Save the translations of the given product in the database, overwriting possibly existing
+    * ones.
     *
-    * @param p A product which must already exist in the database.
-    * @return A list of composable sql queries for Slick.
+    * @param p
+    *   A product which must already exist in the database.
+    * @return
+    *   A list of composable sql queries for Slick.
     */
-  protected def saveTranslations(p: Product): NonEmptyList[DBIO[Int]] = {
+  protected def saveTranslations(p: Product): NonEmptyList[DBIO[Int]] =
     val save = saveTranslation(p.id)(_)
     p.names.toNonEmptyList.map(t => save(t))
-  }
 
-  /**
-    * Create a query to insert or update a given translation in the database.
+  /** Create a query to insert or update a given translation in the database.
     *
-    * @param id The unique ID of the product.
-    * @param t  The translation to be saved.
-    * @return A composable sql query for Slick.
+    * @param id
+    *   The unique ID of the product.
+    * @param t
+    *   The translation to be saved.
+    * @return
+    *   A composable sql query for Slick.
     */
   protected def saveTranslation(id: ProductId)(t: Translation): DBIO[Int] =
     namesTable.insertOrUpdate((id, t.lang, t.name))
 
-}
+end Repository

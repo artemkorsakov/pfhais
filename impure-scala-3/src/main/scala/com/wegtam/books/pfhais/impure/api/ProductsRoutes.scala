@@ -18,16 +18,14 @@ import akka.stream.scaladsl._
 import cats.implicits._
 import com.wegtam.books.pfhais.impure.db._
 import com.wegtam.books.pfhais.impure.models._
-import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
-import eu.timepit.refined.auto._
+//import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport._
 
 import scala.concurrent.ExecutionContext
 
-final class ProductsRoutes(repo: Repository)(implicit ec: ExecutionContext) {
+final class ProductsRoutes(repo: Repository)(implicit ec: ExecutionContext):
   val routes = path("products") {
     get {
-      implicit val jsonStreamingSupport: JsonEntityStreamingSupport =
-        EntityStreamingSupport.json()
+      given JsonEntityStreamingSupport = EntityStreamingSupport.json()
 
       val src = Source.fromPublisher(repo.loadProducts())
       val products: Source[Product, NotUsed] = src
@@ -42,12 +40,9 @@ final class ProductsRoutes(repo: Repository)(implicit ec: ExecutionContext) {
           (op, x) => op.fold(x.some)(p => p.copy(names = p.names ++ x.names).some)
         )
         .mergeSubstreams
-        .collect(
-          op =>
-            op match {
-              case Some(p) => p
-            }
-        )
+        .collect {
+          case Some(p) => p
+        }
       complete(products)
     } ~
     post {
@@ -58,4 +53,3 @@ final class ProductsRoutes(repo: Repository)(implicit ec: ExecutionContext) {
       }
     }
   }
-}

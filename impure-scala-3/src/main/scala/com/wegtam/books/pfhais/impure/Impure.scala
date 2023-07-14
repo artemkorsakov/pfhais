@@ -17,7 +17,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.stream._
 import com.wegtam.books.pfhais.impure.api._
 import com.wegtam.books.pfhais.impure.db._
-import eu.timepit.refined.auto._
 import org.flywaydb.core.Flyway
 import slick.basic._
 import slick.jdbc._
@@ -25,7 +24,7 @@ import slick.jdbc._
 import scala.io.StdIn
 import scala.concurrent.ExecutionContext
 
-object Impure {
+object Impure:
 
   /**
     * Main entry point of the application.
@@ -33,10 +32,10 @@ object Impure {
     * @param args A list of arguments given on the command line.
     */
   @SuppressWarnings(Array("org.wartremover.warts.Any"))
-  def main(args: Array[String]): Unit = {
-    implicit val system: ActorSystem    = ActorSystem()
-    implicit val mat: ActorMaterializer = ActorMaterializer()
-    implicit val ec: ExecutionContext   = system.dispatcher
+  def main(args: Array[String]): Unit =
+    given system: ActorSystem    = ActorSystem()
+    given mat: ActorMaterializer = ActorMaterializer()
+    given ec: ExecutionContext   = system.dispatcher
 
     val url = "jdbc:postgresql://" +
       system.settings.config.getString("database.db.properties.serverName") +
@@ -60,6 +59,6 @@ object Impure {
     val srv        = Http().bindAndHandle(routes, host, port)
     val pressEnter = StdIn.readLine()
     srv.flatMap(_.unbind()).onComplete(_ => system.terminate())
-  }
 
-}
+end Impure
+
