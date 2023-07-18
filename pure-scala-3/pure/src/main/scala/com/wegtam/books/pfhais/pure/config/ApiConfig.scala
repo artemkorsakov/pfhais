@@ -12,21 +12,14 @@
 package com.wegtam.books.pfhais.pure.config
 
 import com.wegtam.books.pfhais.pure.{ NonEmptyString, PortNumber }
-import eu.timepit.refined.auto._
-import eu.timepit.refined.pureconfig._
-import pureconfig._
-import pureconfig.generic.semiauto._
+import pureconfig.*
+import pureconfig.generic.derivation.default.*
 
-/**
-  * The configuration for our HTTP API.
+/** The configuration for our HTTP API.
   *
-  * @param host The hostname or ip address on which the service shall listen.
-  * @param port The port number on which the service shall listen.
+  * @param host
+  *   The hostname or ip address on which the service shall listen.
+  * @param port
+  *   The port number on which the service shall listen.
   */
-final case class ApiConfig(host: NonEmptyString, port: PortNumber)
-
-object ApiConfig {
-
-  implicit val configReader: ConfigReader[ApiConfig] = deriveReader[ApiConfig]
-
-}
+final case class ApiConfig(host: NonEmptyString, port: PortNumber) derives ConfigReader
