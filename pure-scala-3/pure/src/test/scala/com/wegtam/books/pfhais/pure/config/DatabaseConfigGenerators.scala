@@ -22,29 +22,24 @@
 //
 //package com.wegtam.books.pfhais.pure.config
 //
-///** The configuration for our database connection.
-//  *
-//  * @param driver
-//  *   The class name of the driver to use.
-//  * @param url
-//  *   The JDBC connection url (driver specific).
-//  * @param user
-//  *   The username for the database connection.
-//  * @param pass
-//  *   The password for the database connection.
-//  */
-//final case class DatabaseConfig(
-//    driver: String,
-//    url: String,
-//    user: String,
-//    pass: String
-//)
+//import com.wegtam.books.pfhais.pure.*
+//import eu.timepit.refined.api.RefType
+//import eu.timepit.refined.auto.*
+//import org.scalacheck.{ Arbitrary, Gen }
 //
-///*
-//final case class DatabaseConfig(
-//    driver: NonEmptyString,
-//    url: DatabaseUrl,
-//    user: DatabaseLogin,
-//    pass: DatabasePassword
-//)
-// */
+//object DatabaseConfigGenerators {
+//  val DefaultPassword: DatabasePassword = "secret"
+//
+//  val genDatabaseConfig: Gen[DatabaseConfig] = for {
+//    gp <- Gen.nonEmptyListOf(Gen.alphaNumChar)
+//    p = RefType.applyRef[DatabasePassword](gp.mkString).getOrElse(DefaultPassword)
+//  } yield DatabaseConfig(
+//    driver = "org.postgresql.Driver",
+//    url = "jdbc:postgresql://localhost:5422/test-database",
+//    user = "pure",
+//    pass = p
+//  )
+//
+//  implicit val arbitraryDatabaseConfig: Arbitrary[DatabaseConfig] = Arbitrary(genDatabaseConfig)
+//
+//}

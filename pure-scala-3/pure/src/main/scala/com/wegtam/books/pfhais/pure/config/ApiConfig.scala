@@ -11,7 +11,7 @@
 
 package com.wegtam.books.pfhais.pure.config
 
-import com.wegtam.books.pfhais.pure.{ NonEmptyString, PortNumber }
+import com.wegtam.books.pfhais.pure.{ *, given }
 import pureconfig.*
 import pureconfig.generic.derivation.default.*
 
@@ -22,4 +22,4 @@ import pureconfig.generic.derivation.default.*
   * @param port
   *   The port number on which the service shall listen.
   */
-final case class ApiConfig(host: NonEmptyString, port: PortNumber) derives ConfigReader
+final case class ApiConfig(host: NonEmptyString, port: Int) derives ConfigReader

@@ -13,10 +13,11 @@ object Dependencies {
         val iron       = "2.1.0"
         val kittens    = "3.0.0"
         val logback    = "1.4.8"
+        val munit      = "1.0.0-M8"
+        val munitCats  = "1.0.7"
         val postgresql = "42.6.0"
         val pureConfig = "0.17.4"
         val scalaCheck = "1.17.0"
-        val scalaTest  = "3.2.16"
       }
 
       val catsCore          = "org.typelevel"         %% "cats-core"           % Version.cats
@@ -39,10 +40,12 @@ object Dependencies {
       val ironScalaCheck    = "io.github.iltotore"    %% "iron-scalacheck"     % Version.iron
       val kittens           = "org.typelevel"         %% "kittens"             % Version.kittens
       val logback           = "ch.qos.logback"         % "logback-classic"     % Version.logback
+      val munitCore         = "org.scalameta"         %% "munit"               % Version.munit
+      val munitCatsEffect3  = "org.typelevel"         %% "munit-cats-effect-3" % Version.munitCats
+      val munitScalacheck   = "org.scalameta"         %% "munit-scalacheck"    % Version.munit
       val postgresql        = "org.postgresql"         % "postgresql"          % Version.postgresql
       val pureConfig        = "com.github.pureconfig" %% "pureconfig-core"     % Version.pureConfig
       val scalaCheck        = "org.scalacheck"        %% "scalacheck"          % Version.scalaCheck
-      val scalaTest         = "org.scalatest"         %% "scalatest"           % Version.scalaTest
     }
 
   lazy val pureLibs: Seq[ModuleID] = Seq(
@@ -66,9 +69,11 @@ object Dependencies {
     library.ironCats,
     library.ironCore,
     library.ironCirce,
-    library.doobieScalaTest % Test,
-    library.ironScalaCheck % Test,
-    library.scalaCheck % Test,
-    library.scalaTest % Test
+    library.doobieScalaTest  % Test,
+    library.ironScalaCheck   % Test,
+    library.munitCore        % Test,
+    library.munitCatsEffect3 % Test,
+    library.munitScalacheck  % Test,
+    library.scalaCheck       % Test
   )
 }
