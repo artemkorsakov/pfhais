@@ -17,19 +17,26 @@ import io.github.iltotore.iron.constraint.all.*
 
 // A string containing a database login which must be non empty.
 opaque type DatabaseLogin = String :| Not[Blank]
+given ConfigReader[DatabaseLogin] =
+  ConfigReader.fromString[DatabaseLogin](ConvertHelpers.optF(_.refineOption))
+
 // A string containing a database password which must be non empty.
 opaque type DatabasePassword = String :| Not[Blank]
+given ConfigReader[DatabasePassword] =
+  ConfigReader.fromString[DatabasePassword](ConvertHelpers.optF(_.refineOption))
+
 // A string containing a database url.
 opaque type DatabaseUrl = String :|
   Match["""(\b(https?|ftp|file)://)?[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]"""]
+given ConfigReader[DatabaseUrl] =
+  ConfigReader.fromString[DatabaseUrl](ConvertHelpers.optF(_.refineOption))
+
 // A string that must not be empty.
 opaque type NonEmptyString = String :| Not[Blank]
+given ConfigReader[NonEmptyString] =
+  ConfigReader.fromString[NonEmptyString](ConvertHelpers.optF(_.refineOption))
+
 // A TCP port number which is valid in the range of 1 to 65535.
 opaque type PortNumber = Int :| Interval.Closed[1, 65535]
-
-given Constraint[String, NonEmptyString] with
-  override inline def test(value: String): Boolean = value.refineOption.isDefined
-  override inline def message: String              = "Should be non empty"
-
-given ConfigReader[NonEmptyString] =
-  ConfigReader.fromString[NonEmptyString](ConvertHelpers.catchReadError(_.refine))
+given ConfigReader[PortNumber] =
+  ConfigReader.fromString[PortNumber](ConvertHelpers.optF(_.toIntOption.flatMap(_.refineOption)))

@@ -22,4 +22,4 @@ import pureconfig.generic.derivation.default.*
   * @param port
   *   The port number on which the service shall listen.
   */
-final case class ApiConfig(host: NonEmptyString, port: Int) derives ConfigReader
+final case class ApiConfig(host: NonEmptyString, port: PortNumber) derives ConfigReader

@@ -5,16 +5,15 @@ import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
 opaque type NonEmptyString = String :| Not[Blank]
-opaque type PortNumber = Int :| Interval.Closed[1, 65535]
+opaque type PortNumber     = Int :| Interval.Closed[1, 65535]
 
-final case class ApiConfig(host: NonEmptyString, port: Int) derives ConfigReader
+given ConfigReader[NonEmptyString] =
+  ConfigReader.fromString[NonEmptyString](ConvertHelpers.optF(_.refineOption))
 
-object ApiConfig:
-  given Constraint[String, NonEmptyString] with
-    override inline def test(value: String): Boolean = value.refineOption.isDefined
-    override inline def message: String = "Should be non empty"
+given ConfigReader[PortNumber] =
+  ConfigReader.fromString[PortNumber](ConvertHelpers.optF(_.toIntOption.flatMap(_.refineOption)))
 
-  given ConfigReader[NonEmptyString] = ConfigReader.fromString[NonEmptyString](ConvertHelpers.catchReadError(_.refine))
+final case class ApiConfig(host: NonEmptyString, port: PortNumber) derives ConfigReader
 
 val config1 = ConfigFactory.parseString("""api{"host":"localhost","port":1234}""")
 ConfigSource.fromConfig(config1).at("api").load[ApiConfig]

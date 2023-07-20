@@ -13,32 +13,37 @@ package com.wegtam.books.pfhais.pure.config
 
 import com.typesafe.config.*
 import munit.FunSuite
-//import com.wegtam.books.pfhais.pure.config.ApiConfigGenerators.*
+import com.wegtam.books.pfhais.pure.config.ApiConfigGenerators.*
 import munit.ScalaCheckSuite
 import org.scalacheck.Prop.*
-import org.scalacheck.Gen.*
-import org.scalacheck.Gen
 import pureconfig.*
-import com.wegtam.books.pfhais.pure.config.ApiConfig.given
 
 class ApiConfigSuite extends FunSuite:
   test("ApiConfig loading invalid config format must fail") {
     val config = ConfigFactory.parseString("{}")
     ConfigSource.fromConfig(config).at("api").load[ApiConfig] match {
       case Left(_)  => assert(true)
-      case Right(_) => fail("Loading an invalid config must fail!")
+      case Right(_) => fail("Loading an empty config must fail!")
     }
   }
 
 class ApiConfigGenSuite extends ScalaCheckSuite:
-  private val invalidPort: Gen[Int] = Gen.oneOf(Gen.negNum[Int], Gen.choose(65536, 1000000))
-
-  property("ApiConfig loading valid config format when settings are invalid must fail") {
-    forAll(invalidPort) { (i: Int) =>
+  property("ApiConfig loading valid config format when settings are invalid host must fail") {
+    forAll(validPort) { (i: Int) =>
       val config = ConfigFactory.parseString(s"""api{"host":"","port":$i}""")
       ConfigSource.fromConfig(config).at("api").load[ApiConfig] match {
         case Left(_)  => assert(true)
-        case Right(_) => fail("Loading a config with invalid settings must fail!")
+        case Right(_) => fail("Loading a config with invalid host must fail!")
+      }
+    }
+  }
+
+  property("ApiConfig loading valid config format when settings are invalid port must fail") {
+    forAll(invalidPort) { (i: Int) =>
+      val config = ConfigFactory.parseString(s"""api{"host":"localhost","port":$i}""")
+      ConfigSource.fromConfig(config).at("api").load[ApiConfig] match {
+        case Left(_)  => assert(true)
+        case Right(_) => fail("Loading a config with invalid port must fail!")
       }
     }
   }
