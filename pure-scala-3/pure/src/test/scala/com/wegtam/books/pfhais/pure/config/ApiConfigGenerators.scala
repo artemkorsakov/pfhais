@@ -12,23 +12,23 @@
 package com.wegtam.books.pfhais.pure.config
 
 import org.scalacheck.*
-import com.wegtam.books.pfhais.pure.{ *, given }
-import io.github.iltotore.iron.{ *, given }
+import com.wegtam.books.pfhais.pure.*
+import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 
 object ApiConfigGenerators:
-  private val DefaultHost: NonEmptyString = "api.example.com"
-  private val DefaultPort: PortNumber     = 1234
+  val DefaultHost: NonEmptyString = "api.example.com"
+  val DefaultPort: PortNumber     = 1234
 
   val validHost: Gen[String] = Gen.nonEmptyListOf(Gen.alphaNumChar).map(_.mkString)
   val validPort: Gen[Int]    = Gen.choose(1, 65535)
   val invalidPort: Gen[Int]  = Gen.oneOf(Gen.negNum[Int], Gen.const(0), Gen.choose(65536, 1000000))
 
-  val genApiConfig: Gen[ApiConfig] = for {
-    gh <- validHost
-    gp <- validPort
-  } yield {
-    val host: Option[NonEmptyString] = gh.refineOption
-    val port: Option[PortNumber]     = gp.refineOption
-    ApiConfig(host = host.getOrElse(DefaultHost), port = port.getOrElse(DefaultPort))
-  }
+  val genApiConfig: Gen[ApiConfig] =
+    for
+      gh <- validHost
+      gp <- validPort
+    yield
+      val host: Option[NonEmptyString] = gh.refineOption
+      val port: Option[PortNumber]     = gp.refineOption
+      ApiConfig(host = host.getOrElse(DefaultHost), port = port.getOrElse(DefaultPort))
