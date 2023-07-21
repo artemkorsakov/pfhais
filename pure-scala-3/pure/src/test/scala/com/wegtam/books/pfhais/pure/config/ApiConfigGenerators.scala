@@ -12,29 +12,23 @@
 package com.wegtam.books.pfhais.pure.config
 
 import org.scalacheck.*
+import com.wegtam.books.pfhais.pure.{ *, given }
+import io.github.iltotore.iron.{ *, given }
+import io.github.iltotore.iron.constraint.all.*
 
 object ApiConfigGenerators:
-  val DefaultHost: String = "api.example.com"
-  val DefaultPort: Int    = 1234
+  private val DefaultHost: NonEmptyString = "api.example.com"
+  private val DefaultPort: PortNumber     = 1234
 
-  val validPort: Gen[Int]   = Gen.choose(1, 65535)
-  val invalidPort: Gen[Int] = Gen.oneOf(Gen.negNum[Int], Gen.choose(65536, 1000000))
+  val validHost: Gen[String] = Gen.nonEmptyListOf(Gen.alphaNumChar).map(_.mkString)
+  val validPort: Gen[Int]    = Gen.choose(1, 65535)
+  val invalidPort: Gen[Int]  = Gen.oneOf(Gen.negNum[Int], Gen.const(0), Gen.choose(65536, 1000000))
 
-  // val genApiConfig: Gen[ApiConfig] = for {
-  //   gh <- Gen.nonEmptyListOf(Gen.alphaNumChar)
-  //   gp <- Gen.choose(1, 65535)
-  // } yield ApiConfig(host = gh.mkString, port = gp)
-
-  // given Arbitrary[ApiConfig] = Arbitrary(genApiConfig)
-
-//  val DefaultHost: NonEmptyString = "api.example.com"
-//  val DefaultPort: PortNumber     = 1234
-//
-//  val genApiConfig: Gen[ApiConfig] = for {
-//    gh <- Gen.nonEmptyListOf(Gen.alphaNumChar)
-//    gp <- Gen.choose(1, 65535)
-//    h = RefType.applyRef[NonEmptyString](gh.mkString).getOrElse(DefaultHost)
-//    p = RefType.applyRef[PortNumber](gp).getOrElse(DefaultPort)
-//  } yield ApiConfig(host = h, port = p)
-//
-//  implicit val arbitraryApiConfig: Arbitrary[ApiConfig] = Arbitrary(genApiConfig)
+  val genApiConfig: Gen[ApiConfig] = for {
+    gh <- validHost
+    gp <- validPort
+  } yield {
+    val host: Option[NonEmptyString] = gh.refineOption
+    val port: Option[PortNumber]     = gp.refineOption
+    ApiConfig(host = host.getOrElse(DefaultHost), port = port.getOrElse(DefaultPort))
+  }

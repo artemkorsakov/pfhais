@@ -48,21 +48,13 @@ class ApiConfigGenSuite extends ScalaCheckSuite:
     }
   }
 
-//  "ApiConfig" when {
-//      "settings are valid" must {
-//        "load correct settings" in {
-//          forAll("input") {
-//            expected: ApiConfig =>
-//              val config =
-//                ConfigFactory.parseString(
-//                  s"""api{"host":"${expected.host}","port":${expected.port}}"""
-//                )
-//              ConfigSource.fromConfig(config).at("api").load[ApiConfig] match {
-//                case Left(e)  => fail(s"Parsing a valid configuration must succeed! ($e)")
-//                case Right(c) => c must be(expected)
-//              }
-//          }
-//        }
-//      }
-//    }
-//  }
+  property("ApiConfig when settings are valid must load correct settings") {
+    forAll(genApiConfig) { (expected: ApiConfig) =>
+      val config =
+        ConfigFactory.parseString(s"""api{"host":"${expected.host}","port":${expected.port}}""")
+      ConfigSource.fromConfig(config).at("api").load[ApiConfig] match {
+        case Left(e)  => fail(s"Parsing a valid configuration must succeed! ($e)")
+        case Right(c) => assertEquals(c, expected)
+      }
+    }
+  }

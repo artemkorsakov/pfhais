@@ -12,7 +12,7 @@
 package com.wegtam.books.pfhais.pure.config
 
 import com.wegtam.books.pfhais.pure.{ *, given }
-import pureconfig.*
+import pureconfig.ConfigReader
 import pureconfig.generic.derivation.default.*
 
 /** The configuration for our HTTP API.
