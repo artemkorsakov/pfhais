@@ -11,10 +11,10 @@
 
 package com.wegtam.books.pfhais.pure.config
 
-import org.scalacheck.*
 import com.wegtam.books.pfhais.pure.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
+import org.scalacheck.*
 
 object ApiConfigGenerators:
   val DefaultHost: NonEmptyString = "api.example.com"
@@ -32,3 +32,5 @@ object ApiConfigGenerators:
       val host: Option[NonEmptyString] = gh.refineOption
       val port: Option[PortNumber]     = gp.refineOption
       ApiConfig(host = host.getOrElse(DefaultHost), port = port.getOrElse(DefaultPort))
+
+  given Arbitrary[ApiConfig] = Arbitrary(genApiConfig)

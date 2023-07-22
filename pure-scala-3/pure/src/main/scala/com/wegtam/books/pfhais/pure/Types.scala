@@ -11,29 +11,23 @@
 
 package com.wegtam.books.pfhais.pure
 
-import pureconfig.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
+import pureconfig.*
 
-// A string containing a database login which must be non empty.
-type DatabaseLogin = String :| Not[Blank]
-
-// A string containing a database password which must be non empty.
-type DatabasePassword = String :| Not[Blank]
+// A string that must not be empty.
+type NonEmptyString = String :| Not[Blank]
 
 // A string containing a database url.
 type DatabaseUrl = String :|
   Match["""(\b(https?|ftp|file)://)?[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]"""]
 
-// A string that must not be empty.
-type NonEmptyString = String :| Not[Blank]
-
 // A TCP port number which is valid in the range of 1 to 65535.
 type PortNumber = Int :| Interval.Closed[1, 65535]
 
-given ConfigReader[DatabaseUrl] =
-  ConfigReader.fromString[DatabaseUrl](ConvertHelpers.optF(_.refineOption))
 given ConfigReader[NonEmptyString] =
   ConfigReader.fromString[NonEmptyString](ConvertHelpers.optF(_.refineOption))
+given ConfigReader[DatabaseUrl] =
+  ConfigReader.fromString[DatabaseUrl](ConvertHelpers.optF(_.refineOption))
 given ConfigReader[PortNumber] =
   ConfigReader.fromString[PortNumber](ConvertHelpers.optF(_.toIntOption.flatMap(_.refineOption)))

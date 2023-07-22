@@ -12,8 +12,8 @@
 package com.wegtam.books.pfhais.pure.config
 
 import com.typesafe.config.*
+import com.wegtam.books.pfhais.pure.config.ApiConfigGenerators.{ *, given }
 import munit.FunSuite
-import com.wegtam.books.pfhais.pure.config.ApiConfigGenerators.*
 import munit.ScalaCheckSuite
 import org.scalacheck.Prop.*
 import pureconfig.*
@@ -49,7 +49,7 @@ class ApiConfigGenSuite extends ScalaCheckSuite:
   }
 
   property("ApiConfig when settings are valid must load correct settings") {
-    forAll(genApiConfig) { (expected: ApiConfig) =>
+    forAll { (expected: ApiConfig) =>
       val config =
         ConfigFactory.parseString(s"""api{"host":"${expected.host}","port":${expected.port}}""")
       ConfigSource.fromConfig(config).at("api").load[ApiConfig] match {
