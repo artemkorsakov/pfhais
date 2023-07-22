@@ -15,6 +15,7 @@ import com.wegtam.books.pfhais.pure.*
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 import org.scalacheck.*
+import com.wegtam.books.pfhais.pure.config.NonEmptyString
 
 object DatabaseConfigGenerators:
   private val DefaultPassword: NonEmptyString = "secret"

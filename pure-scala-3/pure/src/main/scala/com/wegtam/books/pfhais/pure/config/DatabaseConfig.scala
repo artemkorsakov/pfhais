@@ -11,9 +11,10 @@
 
 package com.wegtam.books.pfhais.pure.config
 
-import com.wegtam.books.pfhais.pure.{ *, given }
+import com.wegtam.books.pfhais.pure.*
 import pureconfig.ConfigReader
 import pureconfig.generic.derivation.default.*
+import com.wegtam.books.pfhais.pure.config.{ DatabaseUrl, NonEmptyString }
 
 /** The configuration for our database connection.
   *

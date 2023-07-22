@@ -9,7 +9,7 @@
  * extent allowed by law.
  */
 
-package com.wegtam.books.pfhais.pure
+package com.wegtam.books.pfhais.pure.config
 
 import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
