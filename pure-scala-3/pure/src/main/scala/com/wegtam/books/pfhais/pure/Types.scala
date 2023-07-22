@@ -15,10 +15,8 @@ import io.github.iltotore.iron.*
 import io.github.iltotore.iron.constraint.all.*
 import pureconfig.*
 
-// A string that must not be empty.
 type NonEmptyString = String :| Not[Blank]
 
-// A string containing a database url.
 type DatabaseUrl = String :|
   Match["""(\b(https?|ftp|file)://)?[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]"""]
 

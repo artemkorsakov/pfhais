@@ -17,15 +17,12 @@ import io.github.iltotore.iron.constraint.all.*
 import org.scalacheck.*
 
 object DatabaseConfigGenerators:
-  val DefaultPassword: NonEmptyString = "secret"
-
-  val validPassword: Gen[String] = Gen.nonEmptyListOf(Gen.alphaNumChar).map(_.mkString)
-
-  val genDatabaseConfig: Gen[DatabaseConfig] =
+  private val DefaultPassword: NonEmptyString = "secret"
+  private val validPassword: Gen[String]      = Gen.nonEmptyListOf(Gen.alphaNumChar).map(_.mkString)
+  private val genDatabaseConfig: Gen[DatabaseConfig] =
     for gp <- validPassword
     yield
       val password: Option[NonEmptyString] = gp.refineOption
-
       DatabaseConfig(
         driver = "org.postgresql.Driver",
         url = "jdbc:postgresql://localhost:5422/test-database",

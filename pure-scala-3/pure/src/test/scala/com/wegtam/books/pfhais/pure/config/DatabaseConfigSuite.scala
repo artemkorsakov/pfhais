@@ -19,16 +19,15 @@ import org.scalacheck.Prop.*
 import pureconfig.*
 
 class DatabaseConfigSuite extends FunSuite:
-  test("DatabaseConfig when loading invalid config format must fail") {
+  test("DatabaseConfig when loading invalid config format must fail"):
     val config = ConfigFactory.parseString("{}")
     ConfigSource.fromConfig(config).at("database").load[DatabaseConfig] match
       case Left(_)  => assert(true)
       case Right(_) => fail("Loading an invalid config must fail!")
-  }
 
 class DatabaseConfigGenSuite extends ScalaCheckSuite:
-  property("DatabaseConfig loading valid config format when settings are invalid must fail") {
-    forAll { (i: Int) =>
+  property("DatabaseConfig loading valid config format when settings are invalid must fail"):
+    forAll: (i: Int) =>
       val config = ConfigFactory.parseString(
         """database {
                  |  "driver":"",
@@ -37,15 +36,12 @@ class DatabaseConfigGenSuite extends ScalaCheckSuite:
                  |  "pass": ""
                  |}""".stripMargin
       )
-      ConfigSource.fromConfig(config).at("database").load[DatabaseConfig] match {
+      ConfigSource.fromConfig(config).at("database").load[DatabaseConfig] match
         case Left(_)  => assert(true)
         case Right(_) => fail("Loading a config with invalid settings must fail!")
-      }
-    }
-  }
 
-  property("DatabaseConfig settings are valid must load correct settings") {
-    forAll { (expected: DatabaseConfig) =>
+  property("DatabaseConfig settings are valid must load correct settings"):
+    forAll: (expected: DatabaseConfig) =>
       val config = ConfigFactory.parseString(
         s"""database {
                   |  "driver": "${expected.driver}",
@@ -54,9 +50,6 @@ class DatabaseConfigGenSuite extends ScalaCheckSuite:
                   |  "pass": "${expected.pass}"
                   |}""".stripMargin
       )
-      ConfigSource.fromConfig(config).at("database").load[DatabaseConfig] match {
+      ConfigSource.fromConfig(config).at("database").load[DatabaseConfig] match
         case Left(e)  => fail(s"Parsing a valid configuration must succeed! ($e)")
         case Right(c) => assertEquals(c, expected)
-      }
-    }
-  }

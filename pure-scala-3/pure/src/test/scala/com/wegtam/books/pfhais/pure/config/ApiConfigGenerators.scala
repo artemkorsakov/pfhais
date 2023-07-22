@@ -17,14 +17,12 @@ import io.github.iltotore.iron.constraint.all.*
 import org.scalacheck.*
 
 object ApiConfigGenerators:
-  val DefaultHost: NonEmptyString = "api.example.com"
-  val DefaultPort: PortNumber     = 1234
-
-  val validHost: Gen[String] = Gen.nonEmptyListOf(Gen.alphaNumChar).map(_.mkString)
-  val validPort: Gen[Int]    = Gen.choose(1, 65535)
-  val invalidPort: Gen[Int]  = Gen.oneOf(Gen.negNum[Int], Gen.const(0), Gen.choose(65536, 1000000))
-
-  val genApiConfig: Gen[ApiConfig] =
+  val validPort: Gen[Int]   = Gen.choose(1, 65535)
+  val invalidPort: Gen[Int] = Gen.oneOf(Gen.negNum[Int], Gen.const(0), Gen.choose(65536, 1000000))
+  private val DefaultHost: NonEmptyString = "api.example.com"
+  private val DefaultPort: PortNumber     = 1234
+  private val validHost: Gen[String]      = Gen.nonEmptyListOf(Gen.alphaNumChar).map(_.mkString)
+  private val genApiConfig: Gen[ApiConfig] =
     for
       gh <- validHost
       gp <- validPort
