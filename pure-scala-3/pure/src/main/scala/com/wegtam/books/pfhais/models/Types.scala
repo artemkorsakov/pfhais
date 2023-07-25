@@ -1,4 +1,4 @@
-package com.wegtam.books.pfhais.models
+package com.wegtam.books.pfhais.pure.models
 
 import cats.*
 import io.github.iltotore.iron.*

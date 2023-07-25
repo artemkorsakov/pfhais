@@ -11,11 +11,10 @@
 
 package com.wegtam.books.pfhais.pure.models
 
-import cats._
+import cats.*
 import cats.derived
-import io.circe._
-import io.circe.generic.semiauto._
-import io.circe.refined._
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.constraint.all.*
 
 /** The translation data for a product name.
   *
@@ -26,15 +25,7 @@ import io.circe.refined._
   */
 final case class Translation(lang: LanguageCode, name: ProductName)
 
-object Translation {
-
-  implicit val decode: Decoder[Translation] = deriveDecoder[Translation]
-
-  implicit val encode: Encoder[Translation] = deriveEncoder[Translation]
-
-  implicit val order: Order[Translation] = {
-    import derived.auto.order._
-    derived.semi.order[Translation]
-  }
-
-}
+object Translation:
+  given Order[Translation] =
+    import derived.auto.order.*
+    derived.semiauto.order[Translation]

@@ -13,10 +13,8 @@ package com.wegtam.books.pfhais.pure.models
 
 import cats.Order
 import cats.data.NonEmptySet
-import cats.implicits._
-import eu.timepit.refined.auto._
-import io.circe._
-import io.circe.generic.semiauto._
+import cats.implicits.*
+import scala.collection.immutable.SortedSet
 
 /** A product.
   *
@@ -27,15 +25,9 @@ import io.circe.generic.semiauto._
   */
 final case class Product(id: ProductId, names: NonEmptySet[Translation])
 
-object Product {
-
-  implicit val decode: Decoder[Product] = deriveDecoder[Product]
-
-  implicit val encode: Encoder[Product] = deriveEncoder[Product]
-
-  implicit val order: Order[Product] = new Order[Product] {
+object Product:
+  given Order[Product] with
     def compare(x: Product, y: Product): Int = x.id.compare(y.id)
-  }
 
   /** Try to create a Product from the given list of database rows.
     *
@@ -44,17 +36,9 @@ object Product {
     * @return
     *   An option to the successfully created Product.
     */
-  def fromDatabase(rows: Seq[(ProductId, LanguageCode, ProductName)]): Option[Product] = {
-    val po = for {
-      (id, c, n) <- rows.headOption
-      t = Translation(lang = c, name = n)
-      p <- Product(id = id, names = NonEmptySet.one(t)).some
-    } yield p
-    po.map(p =>
-      rows.drop(1).foldLeft(p) { (a, cols) =>
-        val (id, c, n) = cols
-        a.copy(names = a.names.add(Translation(lang = c, name = n)))
-      }
-    )
-  }
-}
+  def fromDatabase(rows: Seq[(ProductId, LanguageCode, ProductName)]): Option[Product] =
+    val translations = rows.map { case (_, c, n) => Translation(lang = c, name = n) }
+    for
+      (id, _, _) <- rows.headOption
+      names      <- NonEmptySet.fromSet(SortedSet.from(translations))
+    yield Product(id = id, names = names)
