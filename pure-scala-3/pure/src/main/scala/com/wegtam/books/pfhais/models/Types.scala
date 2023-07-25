@@ -14,8 +14,8 @@ type ProductName = String :| Not[Blank]
 given Order[LanguageCode] with
   def compare(x: LanguageCode, y: LanguageCode): Int = x.compare(y)
 
-given Order[ProductId] with
-  def compare(x: ProductId, y: ProductId): Int = x.compare(y)
+// given Order[ProductId] with
+//   def compare(x: ProductId, y: ProductId): Int = x.compare(y)
 
 given Order[ProductName] with
   def compare(x: ProductName, y: ProductName): Int = x.compare(y)

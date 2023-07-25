@@ -21,12 +21,7 @@ import org.scalacheck.*
 object TypeGenerators:
 
   private val genLanguageCode: Gen[LanguageCode] = Gen.oneOf(LanguageCodes.all)
-  given Arbitrary[LanguageCode] = Arbitrary(genLanguageCode)
-
-  private val genUuid: Gen[UUID]                   = Gen.delay(UUID.randomUUID)
-  private val genProductId: Gen[ProductId] = Gen.delay(getProductId)
-  private def getProductId: ProductId      = UUID.randomUUID.toString.refine
-  given Arbitrary[ProductId]               = Arbitrary(genProductId)
+  given Arbitrary[LanguageCode]                  = Arbitrary(genLanguageCode)
 
   private val DefaultProductName: ProductName = "I am a product name!"
   private val genProductName: Gen[ProductName] =
@@ -34,7 +29,6 @@ object TypeGenerators:
     yield
       val name: Option[ProductName] = cs.mkString.refineOption
       name.getOrElse(DefaultProductName)
-
   private val genTranslation: Gen[Translation] =
     for
       c <- genLanguageCode
@@ -42,15 +36,15 @@ object TypeGenerators:
     yield Translation(lang = c, name = n)
   given Arbitrary[Translation] = Arbitrary(genTranslation)
 
+  private def getProductId: ProductId      = UUID.randomUUID.toString.refine
+  private val genProductId: Gen[ProductId] = Gen.delay(getProductId)
   private val genTranslationList: Gen[List[Translation]] =
     for ts <- Gen.nonEmptyListOf(genTranslation) yield ts
-
   private val genNonEmptyTranslationSet: Gen[NonEmptySet[Translation]] =
     for
       t  <- genTranslation
       ts <- genTranslationList
     yield NonEmptySet.of(t, ts*)
-
   private val genProduct: Gen[Product] =
     for
       id <- genProductId
@@ -59,6 +53,6 @@ object TypeGenerators:
   given Arbitrary[Product] = Arbitrary(genProduct)
 
   private val genProducts: Gen[List[Product]] = Gen.nonEmptyListOf(genProduct)
-  given Arbitrary[List[Product]] = Arbitrary(genProducts)
+  given Arbitrary[List[Product]]              = Arbitrary(genProducts)
 
 end TypeGenerators
