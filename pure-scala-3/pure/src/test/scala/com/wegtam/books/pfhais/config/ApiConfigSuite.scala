@@ -9,10 +9,10 @@
  * extent allowed by law.
  */
 
-package com.wegtam.books.pfhais.pure.config
+package com.wegtam.books.pfhais.config
 
 import com.typesafe.config.*
-import com.wegtam.books.pfhais.pure.config.ApiConfigGenerators.{ *, given }
+import com.wegtam.books.pfhais.config.ApiConfigGenerators.{ *, given }
 import munit.FunSuite
 import munit.ScalaCheckSuite
 import org.scalacheck.Prop.*

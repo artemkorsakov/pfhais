@@ -9,7 +9,7 @@
  * extent allowed by law.
  */
 
-package com.wegtam.books.pfhais.pure.models
+package com.wegtam.books.pfhais.models
 
 import java.util.UUID
 

@@ -9,11 +9,11 @@
  * extent allowed by law.
  */
 
-package com.wegtam.books.pfhais.pure.models
+package com.wegtam.books.pfhais.models
 
 import cats.data.*
 import cats.implicits.*
-import com.wegtam.books.pfhais.pure.models.TypeGenerators.given
+import com.wegtam.books.pfhais.models.TypeGenerators.given
 import io.circe.*
 import io.circe.parser.*
 import io.circe.syntax.*

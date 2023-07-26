@@ -9,12 +9,10 @@
  * extent allowed by law.
  */
 
-package com.wegtam.books.pfhais.pure.config
+package com.wegtam.books.pfhais.config
 
-import com.wegtam.books.pfhais.pure.*
 import pureconfig.ConfigReader
 import pureconfig.generic.derivation.default.*
-import com.wegtam.books.pfhais.pure.config.{ NonEmptyString, PortNumber }
 
 /** The configuration for our HTTP API.
   *
