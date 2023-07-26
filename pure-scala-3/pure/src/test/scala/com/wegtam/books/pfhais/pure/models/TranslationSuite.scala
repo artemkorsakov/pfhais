@@ -50,19 +50,15 @@ class TranslationSuite extends ScalaCheckSuite:
     "Translation when decoding from JSON when JSON format is valid when data is valid must return the correct types"
   ):
     forAll: (t: Translation) =>
-      val json = s"""{
-                |"lang": ${t.lang.asJson.noSpaces},
-                |"name": ${t.name.asJson.noSpaces}
-                |}""".stripMargin
+      val json = s"""{"lang":${t.lang.asJson.noSpaces},"name":${t.name.asJson.noSpaces}}"""
       decode[Translation](json) match
         case Left(e)  => fail(e.getMessage)
         case Right(v) => assertEquals(v, t)
 
   property("Translation when encoding to JSON must return correct JSON"):
     forAll: (t: Translation) =>
-      val json = t.asJson.noSpaces
-      val expectedJson =
-        s"""{"lang":${t.lang.asJson.noSpaces},"name":${t.name.asJson.noSpaces}}""".stripMargin
+      val json         = t.asJson.noSpaces
+      val expectedJson = s"""{"lang":${t.lang.asJson.noSpaces},"name":${t.name.asJson.noSpaces}}"""
       assertEquals(json, expectedJson)
 
   property("Translation when encoding to JSON must return decodeable JSON"):

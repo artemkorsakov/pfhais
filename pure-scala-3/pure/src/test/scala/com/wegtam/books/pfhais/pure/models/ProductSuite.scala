@@ -46,19 +46,15 @@ class ProductTest extends ScalaCheckSuite:
     "Product when decoding from JSON when JSON format is valid when data is valid must return the correct types"
   ):
     forAll: (p: Product) =>
-      val json = s"""{
-                |"id": ${p.id.asJson.noSpaces},
-                |"names": ${p.names.asJson.noSpaces}
-                |}""".stripMargin
+      val json = s"""{"id":${p.id.asJson.noSpaces},"names":${p.names.asJson.noSpaces}}"""
       decode[Product](json) match
         case Left(e)  => fail(e.getMessage)
         case Right(v) => assertEquals(v, p)
 
   property("Product when encoding to JSON must return correct JSON"):
     forAll: (p: Product) =>
-      val json = p.asJson.noSpaces
-      val expectedJson =
-        s"""{"id":${p.id.asJson.noSpaces},"names":${p.names.asJson.noSpaces}}""".stripMargin
+      val json         = p.asJson.noSpaces
+      val expectedJson = s"""{"id":${p.id.asJson.noSpaces},"names":${p.names.asJson.noSpaces}}"""
       assertEquals(json, expectedJson)
 
   property("Product when encoding to JSON must return decodeable JSON"):
