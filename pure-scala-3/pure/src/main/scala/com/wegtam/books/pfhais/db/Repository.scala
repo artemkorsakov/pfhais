@@ -9,19 +9,17 @@
  * extent allowed by law.
  */
 
-package com.wegtam.books.pfhais.pure.db
+package com.wegtam.books.pfhais.db
 
-import com.wegtam.books.pfhais.pure.models._
+import com.wegtam.books.pfhais.models.*
 import fs2.Stream
-
-import scala.collection.immutable.Seq
 
 /** A base class for our database repository.
   *
   * @tparam F
   *   A higher kinded type which wraps the actual return value.
   */
-trait Repository[F[_]] {
+trait Repository[F[_]]:
 
   /** Load a product from the database repository.
     *
@@ -56,5 +54,3 @@ trait Repository[F[_]] {
     *   The number of affected database rows.
     */
   def updateProduct(p: Product): F[Int]
-
-}

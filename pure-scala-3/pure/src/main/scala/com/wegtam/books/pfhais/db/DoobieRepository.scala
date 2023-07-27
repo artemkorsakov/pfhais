@@ -9,25 +9,22 @@
  * extent allowed by law.
  */
 
-package com.wegtam.books.pfhais.pure.db
+package com.wegtam.books.pfhais.db
 
 import cats.effect.Sync
-import com.wegtam.books.pfhais.pure.models._
-import doobie._
-import doobie.implicits._
-import doobie.postgres.implicits._
-import doobie.refined.implicits._
-import eu.timepit.refined.auto._
+import com.wegtam.books.pfhais.models.*
+import doobie.*
+import doobie.implicits.*
 import fs2.Stream
-
-import scala.collection.immutable.Seq
+import io.github.iltotore.iron.refine
 
 /** The doobie implementation of our repository.
   *
   * @param tx
   *   A transactor for actually executing our queries.
   */
-final class DoobieRepository[F[_]: Sync](tx: Transactor[F]) extends Repository[F] {
+final class DoobieRepository[F[_]: Sync](tx: Transactor[F]) extends Repository[F]:
+  import DoobieRepository.given
 
   /** Load a product from the database repository.
     *
@@ -40,7 +37,7 @@ final class DoobieRepository[F[_]: Sync](tx: Transactor[F]) extends Repository[F
     sql"""SELECT products.id, names.lang_code, names.name 
           FROM products
           JOIN names ON products.id = names.product_id
-          WHERE products.id = $id"""
+          WHERE products.id = ${id.toString}"""
       .query[(ProductId, LanguageCode, ProductName)]
       .to[Seq]
       .transact(tx)
@@ -66,15 +63,14 @@ final class DoobieRepository[F[_]: Sync](tx: Transactor[F]) extends Repository[F
     * @return
     *   The number of affected database rows (product + translations).
     */
-  override def saveProduct(p: Product): F[Int] = {
+  override def saveProduct(p: Product): F[Int] =
     val namesSql    = "INSERT INTO names (product_id, lang_code, name) VALUES (?, ?, ?)"
     val namesValues = p.names.toNonEmptyList.map(t => (p.id, t.lang, t.name))
-    val program = for {
-      pi <- sql"INSERT INTO products (id) VALUES(${p.id})".update.run
+    val program = for
+      pi <- sql"INSERT INTO products (id) VALUES(${p.id.toString})".update.run
       ni <- Update[(ProductId, LanguageCode, ProductName)](namesSql).updateMany(namesValues)
-    } yield pi + ni
+    yield pi + ni
     program.transact(tx)
-  }
 
   /** Update the given product in the database.
     *
@@ -83,14 +79,20 @@ final class DoobieRepository[F[_]: Sync](tx: Transactor[F]) extends Repository[F
     * @return
     *   The number of affected database rows.
     */
-  override def updateProduct(p: Product): F[Int] = {
+  override def updateProduct(p: Product): F[Int] =
     val namesSql    = "INSERT INTO names (product_id, lang_code, name) VALUES (?, ?, ?)"
     val namesValues = p.names.toNonEmptyList.map(t => (p.id, t.lang, t.name))
-    val program = for {
-      dl <- sql"DELETE FROM names WHERE product_id = ${p.id}".update.run
+    val program = for
+      dl <- sql"DELETE FROM names WHERE product_id = ${p.id.toString}".update.run
       ts <- Update[(ProductId, LanguageCode, ProductName)](namesSql).updateMany(namesValues)
-    } yield dl + ts
+    yield dl + ts
     program.transact(tx)
-  }
 
-}
+end DoobieRepository
+
+object DoobieRepository: 
+  given Read[(ProductId, LanguageCode, ProductName)] =
+    Read[(String, String, String)].map { case (x, y, z) => (x.refine, y.refine, z.refine) }
+
+  given Write[(ProductId, LanguageCode, ProductName)] =
+    Write[(String, String, String)].contramap(p => (p._1, p._2, p._3))  

@@ -9,16 +9,16 @@
  * extent allowed by law.
  */
 
-package com.wegtam.books.pfhais.pure.db
+package com.wegtam.books.pfhais.db
 
-import com.wegtam.books.pfhais.pure.{ DatabaseLogin, DatabasePassword, DatabaseUrl }
+import com.wegtam.books.pfhais.config.*
 
 /** A base for our database migrator.
   *
   * @tparam F
   *   A higher kinded type which wraps the actual return value.
   */
-trait DatabaseMigrator[F[_]] {
+trait DatabaseMigrator[F[_]]:
 
   /** Apply pending migrations to the database.
     *
@@ -31,6 +31,4 @@ trait DatabaseMigrator[F[_]] {
     * @return
     *   The number of applied migrations.
     */
-  def migrate(url: DatabaseUrl, user: DatabaseLogin, pass: DatabasePassword): F[Int]
-
-}
+  def migrate(url: DatabaseUrl, user: NonEmptyString, pass: NonEmptyString): F[Int]

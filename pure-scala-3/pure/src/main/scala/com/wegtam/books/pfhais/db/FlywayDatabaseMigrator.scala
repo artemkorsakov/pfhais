@@ -9,16 +9,15 @@
  * extent allowed by law.
  */
 
-package com.wegtam.books.pfhais.pure.db
+package com.wegtam.books.pfhais.db
 
 import cats.effect.IO
-import com.wegtam.books.pfhais.pure.{ DatabaseLogin, DatabasePassword, DatabaseUrl }
-import eu.timepit.refined.auto._
+import com.wegtam.books.pfhais.config.*
 import org.flywaydb.core.Flyway
 
 /** An implementation of the database migrator using Flyway and IO.
   */
-final class FlywayDatabaseMigrator extends DatabaseMigrator[IO] {
+final class FlywayDatabaseMigrator extends DatabaseMigrator[IO]:
 
   /** Apply pending migrations to the database.
     *
@@ -31,10 +30,8 @@ final class FlywayDatabaseMigrator extends DatabaseMigrator[IO] {
     * @return
     *   The number of applied migrations.
     */
-  override def migrate(url: DatabaseUrl, user: DatabaseLogin, pass: DatabasePassword): IO[Int] =
+  override def migrate(url: DatabaseUrl, user: NonEmptyString, pass: NonEmptyString): IO[Int] =
     IO {
       val flyway: Flyway = Flyway.configure().dataSource(url, user, pass).load()
-      flyway.migrate()
+      flyway.migrate().migrationsExecuted
     }
-
-}
