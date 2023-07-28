@@ -90,9 +90,9 @@ final class DoobieRepository[F[_]: Sync](tx: Transactor[F]) extends Repository[F
 
 end DoobieRepository
 
-object DoobieRepository: 
+object DoobieRepository:
   given Read[(ProductId, LanguageCode, ProductName)] =
     Read[(String, String, String)].map { case (x, y, z) => (x.refine, y.refine, z.refine) }
 
   given Write[(ProductId, LanguageCode, ProductName)] =
-    Write[(String, String, String)].contramap(p => (p._1, p._2, p._3))  
+    Write[(String, String, String)].contramap(p => (p._1, p._2, p._3))
