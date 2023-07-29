@@ -31,11 +31,12 @@ class TestRepository[F[_]: Concurrent](source: Ref[F, Seq[Product]]) extends Rep
     Stream.evalSeq(rows)
 
   override def saveProduct(product: Product): F[Int] =
-    source
-      .update { prs =>
-        prs.map: pr =>
-          if pr.id == product.id then product else pr
-      } *> 1.pure[F]
+    for
+      data <- source.get
+      found   = data.exists(_.id == product.id)
+      newData = if found then data else data :+ product
+      _ <- source.set(newData)
+    yield if found then 0 else 1
 
   override def updateProduct(product: Product): F[Int] =
     for
