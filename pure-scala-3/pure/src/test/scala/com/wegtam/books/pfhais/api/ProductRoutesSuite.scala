@@ -13,134 +13,108 @@ package com.wegtam.books.pfhais.api
 
 import java.util.UUID
 import cats.*
+import cats.data.NonEmptySet
 import cats.effect.*
 import com.wegtam.books.pfhais.db.*
 import com.wegtam.books.pfhais.models.*
-import org.http4s.{HttpRoutes, Method, Request, Status, Uri}
+import io.circe.*
+import io.circe.syntax.*
+import io.circe.generic.auto.*
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.circe.given
+import io.github.iltotore.iron.constraint.all.*
+import org.http4s.{ EntityDecoder, HttpRoutes, Method, Request, Status, Uri }
 import org.http4s.implicits.*
+import org.http4s.circe.jsonOf
 import org.http4s.server.Router
 import munit.CatsEffectSuite
 
 final class ProductRoutesSuite extends CatsEffectSuite:
+  given EntityDecoder[IO, Product] = jsonOf
+
+  private val productId: ProductId  = UUID.randomUUID.toString.refine
+  private val names                 = NonEmptySet.one(Translation(lang = "ru", name = "имя"))
+  private val otherNames            = NonEmptySet.one(Translation(lang = "en", name = "name"))
+  private val product: Product      = Product(productId, names)
+  private val otherProduct: Product = Product(productId, otherNames)
+  private val uri = Uri
+    .fromString(s"/product/$productId")
+    .getOrElse(fail("Could not generate valid URI!"))
+  private val getRequest = Request[IO](method = Method.GET, uri = uri)
+  private val putRequest = Request[IO](method = Method.PUT, uri = uri)
+
   test(
     "ProductRoutes when GET /product/ID when product does not exist must return Status.NotFound"
   ):
     for
-      ref <- Ref[IO].of(Seq.empty[Product])
-      repository = new TestRepository[IO](ref)
-      id         = UUID.randomUUID.toString
-      uri = Uri
-        .fromString(s"/product/$id")
-        .getOrElse(fail("Could not generate valid URI!"))
-      service = Router("/" -> new ProductRoutes(repository).routes)
-      response <- service.orNotFound.run(Request(method = Method.GET, uri = uri))
+      service  <- createService(Seq.empty[Product])
+      response <- service.orNotFound.run(getRequest)
       body     <- response.body.compile.toVector
     yield
       assertEquals(response.status, Status.NotFound)
       assert(body.isEmpty)
 
-    //       val result = response.unsafeRunSync()
-    //       result.status must be(expectedStatusCode)
-    //       result.body.compile.toVector.unsafeRunSync must be(empty)
-    //   }
+  test("ProductRoutes when GET /product/ID when product exists must return Status.Ok"):
+    for
+      service  <- createService(Seq(product))
+      response <- service.orNotFound.run(getRequest)
+      actual   <- response.as[Product]
+    yield
+      assertEquals(response.status, Status.Ok)
+      assertEquals(actual, product)
 
-//       "product exists" must {
-//         val expectedStatusCode = Status.Ok
+  test(
+    "ProductRoutes when PUT /product/ID when request body is invalid must return Status.BadRequest"
+  ):
+    for
+      service <- createService(Seq.empty[Product])
+      payload = scala.util.Random.alphanumeric.take(256).mkString
+      response <- service.orNotFound.run(putRequest.withEntity(payload.asJson.noSpaces))
+      body     <- response.body.compile.toVector
+    yield
+      assertEquals(response.status, Status.BadRequest)
+      assert(body.isEmpty)
 
-//         s"return $expectedStatusCode and the product" in {
-//           forAll("product") {
-//             p: Product =>
-//               Uri.fromString("/product/" + p.id.toString) match {
-//                 case Left(_) => fail("Could not generate valid URI!")
-//                 case Right(u) =>
-//                   val repo: Repository[IO]    = new TestRepository[IO](Seq(p))
-//                   def service: HttpRoutes[IO] = Router("/" -> new ProductRoutes(repo).routes)
-//                   val response: IO[Response[IO]] = service.orNotFound.run(
-//                     Request(method = Method.GET, uri = u)
-//                   )
-//                   val result = response.unsafeRunSync
-//                   result.status must be(expectedStatusCode)
-//                   result.as[Product].unsafeRunSync must be(p)
-//               }
-//           }
-//         }
-//       }
-//     }
+  test(
+    "ProductRoutes when PUT /product/ID when request body is valid when product does not exist must return Status.NotFound"
+  ):
+    for
+      service  <- createService(Seq.empty[Product])
+      response <- service.orNotFound.run(putRequest.withEntity(product.asJson.noSpaces))
+      body     <- response.body.compile.toVector
+    yield
+      assertEquals(response.status, Status.NotFound)
+      assert(body.isEmpty)
 
-//     "PUT /product/ID" when {
-//       "request body is invalid" must {
-//         val expectedStatusCode = Status.BadRequest
+  test(
+    "ProductRoutes when PUT /product/ID when request body is valid when product exists must return Status.NoContent"
+  ):
+    for
+      service  <- createService(Seq(product))
+      response <- service.orNotFound.run(putRequest.withEntity(product.asJson.noSpaces))
+      body     <- response.body.compile.toVector
+    yield
+      assertEquals(response.status, Status.NoContent)
+      assert(body.isEmpty)
 
-//         s"return $expectedStatusCode" in {
-//           forAll("id") {
-//             id: ProductId =>
-//               Uri.fromString("/product/" + id.toString) match {
-//                 case Left(_) => fail("Could not generate valid URI!")
-//                 case Right(u) =>
-//                   def service: HttpRoutes[IO] =
-//                     Router("/" -> new ProductRoutes(emptyRepository).routes)
-//                   val payload = scala.util.Random.alphanumeric.take(256).mkString
-//                   val response: IO[Response[IO]] = service.orNotFound.run(
-//                     Request(method = Method.PUT, uri = u)
-//                       .withEntity(payload.asJson.noSpaces)
-//                   )
-//                   val result = response.unsafeRunSync
-//                   result.status must be(expectedStatusCode)
-//                   result.body.compile.toVector.unsafeRunSync must be(empty)
-//               }
-//           }
-//         }
-//       }
+  test(
+    "ProductRoutes when GET /product/ID after PUT /product/ID must return an updated product"
+  ):
+    for
+      service            <- createService(Seq(otherProduct))
+      oldProductResponse <- service.orNotFound.run(getRequest)
+      oldProduct         <- oldProductResponse.as[Product]
+      _                  <- service.orNotFound.run(putRequest.withEntity(product.asJson.noSpaces))
+      updatedProductResponse <- service.orNotFound.run(getRequest)
+      updatedProduct         <- updatedProductResponse.as[Product]
+    yield
+      assertEquals(oldProduct, otherProduct)
+      assertEquals(updatedProduct, product)
 
-//       "request body is valid" when {
-//         "product does not exist" must {
-//           val expectedStatusCode = Status.NotFound
-
-//           s"return $expectedStatusCode" in {
-//             forAll("product") {
-//               p: Product =>
-//                 Uri.fromString("/product/" + p.id.toString) match {
-//                   case Left(_) => fail("Could not generate valid URI!")
-//                   case Right(u) =>
-//                     def service: HttpRoutes[IO] =
-//                       Router("/" -> new ProductRoutes(emptyRepository).routes)
-//                     val response: IO[Response[IO]] = service.orNotFound.run(
-//                       Request(method = Method.PUT, uri = u)
-//                         .withEntity(p)
-//                     )
-//                     val result = response.unsafeRunSync
-//                     result.status must be(expectedStatusCode)
-//                     result.body.compile.toVector.unsafeRunSync must be(empty)
-//                 }
-//             }
-//           }
-//         }
-
-//         "product exists" must {
-//           val expectedStatusCode = Status.NoContent
-
-//           s"return $expectedStatusCode" in {
-//             forAll("product") {
-//               p: Product =>
-//                 Uri.fromString("/product/" + p.id.toString) match {
-//                   case Left(_) => fail("Could not generate valid URI!")
-//                   case Right(u) =>
-//                     val repo: Repository[IO]    = new TestRepository[IO](Seq(p))
-//                     def service: HttpRoutes[IO] = Router("/" -> new ProductRoutes(repo).routes)
-//                     val response: IO[Response[IO]] = service.orNotFound.run(
-//                       Request(method = Method.PUT, uri = u)
-//                         .withEntity(p)
-//                     )
-//                     val result = response.unsafeRunSync
-//                     result.status must be(expectedStatusCode)
-//                     result.body.compile.toVector.unsafeRunSync must be(empty)
-//                 }
-//             }
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
+  private def createService(products: Seq[Product]): IO[HttpRoutes[IO]] =
+    for ref <- Ref[IO].of(products)
+    yield
+      val repository = new TestRepository[IO](ref)
+      Router("/" -> new ProductRoutes(repository).routes)
 
 end ProductRoutesSuite
