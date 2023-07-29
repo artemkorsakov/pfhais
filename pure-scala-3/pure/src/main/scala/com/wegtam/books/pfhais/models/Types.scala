@@ -12,10 +12,10 @@ type ProductId = String :| Match["^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 type ProductName = String :| Not[Blank]
 
 given Order[LanguageCode] with
-  def compare(x: LanguageCode, y: LanguageCode): Int = x.compare(y)
+  def compare(x: LanguageCode, y: LanguageCode): Int = x.toString.compare(y.toString)
 
-// given Order[ProductId] with
-//   def compare(x: ProductId, y: ProductId): Int = x.compare(y)
+given Order[ProductId] with
+  def compare(x: ProductId, y: ProductId): Int = x.toString.compare(y.toString)
 
 given Order[ProductName] with
-  def compare(x: ProductName, y: ProductName): Int = x.compare(y)
+  def compare(x: ProductName, y: ProductName): Int = x.toString.compare(y.toString)

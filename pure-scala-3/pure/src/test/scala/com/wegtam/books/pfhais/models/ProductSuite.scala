@@ -24,7 +24,7 @@ import io.github.iltotore.iron.constraint.all.*
 import munit.ScalaCheckSuite
 import org.scalacheck.Prop.*
 
-class ProductTest extends ScalaCheckSuite:
+final class ProductSuite extends ScalaCheckSuite:
   property("Product when decoding from JSON when JSON format is invalid must return an error"):
     forAll: (s: String) =>
       assert(decode[Product](s).isLeft)
@@ -37,7 +37,7 @@ class ProductTest extends ScalaCheckSuite:
       decodeAccumulating[Product](json) match
         case Validated.Invalid(errors) =>
           assertEquals(
-            errors.head.getMessage(),
+            errors.head.getMessage,
             "DecodingFailure at .id: Should match ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
           )
         case _ => fail("Should return an error")
@@ -70,6 +70,6 @@ class ProductTest extends ScalaCheckSuite:
 
   property("Product when ordering must sort by ID"):
     forAll: (ps: List[Product]) =>
-      val expected = ps.map(_.id).sorted
+      val expected = ps.map(_.id).sorted[ProductId]
       val sorted   = ps.sorted.map(_.id)
       assertEquals(sorted, expected)

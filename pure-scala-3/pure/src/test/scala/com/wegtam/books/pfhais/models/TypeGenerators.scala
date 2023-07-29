@@ -38,6 +38,8 @@ object TypeGenerators:
 
   private def getProductId: ProductId      = UUID.randomUUID.toString.refine
   private val genProductId: Gen[ProductId] = Gen.delay(getProductId)
+  given Arbitrary[ProductId] = Arbitrary(genProductId)
+
   private val genTranslationList: Gen[List[Translation]] =
     for ts <- Gen.nonEmptyListOf(genTranslation) yield ts
   private val genNonEmptyTranslationSet: Gen[NonEmptySet[Translation]] =

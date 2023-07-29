@@ -23,7 +23,7 @@ import io.github.iltotore.iron.constraint.all.*
 import munit.ScalaCheckSuite
 import org.scalacheck.Prop.*
 
-class TranslationSuite extends ScalaCheckSuite:
+final class TranslationSuite extends ScalaCheckSuite:
   property("Translation when decoding from JSON when JSON format is invalid must return an error"):
     forAll: (s: String) =>
       assert(decode[Translation](s).isLeft)

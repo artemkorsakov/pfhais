@@ -18,14 +18,14 @@ import munit.ScalaCheckSuite
 import org.scalacheck.Prop.*
 import pureconfig.*
 
-class ApiConfigSuite extends FunSuite:
+final class ApiConfigSuite extends FunSuite:
   test("ApiConfig loading invalid config format must fail"):
     val config = ConfigFactory.parseString("{}")
     ConfigSource.fromConfig(config).at("api").load[ApiConfig] match
       case Left(_)  => assert(true)
       case Right(_) => fail("Loading an empty config must fail!")
 
-class ApiConfigGenSuite extends ScalaCheckSuite:
+final class ApiConfigGenSuite extends ScalaCheckSuite:
   property("ApiConfig loading valid config format when settings are invalid host must fail"):
     forAll(validPort): (i: Int) =>
       val config = ConfigFactory.parseString(s"""api{"host":"","port":$i}""")

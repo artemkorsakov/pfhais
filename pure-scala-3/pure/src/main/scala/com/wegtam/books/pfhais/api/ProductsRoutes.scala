@@ -9,34 +9,37 @@
  * extent allowed by law.
  */
 
-package com.wegtam.books.pfhais.pure.api
+package com.wegtam.books.pfhais.api
 
-import cats.effect.Sync
-import cats.implicits._
-import com.wegtam.books.pfhais.pure.db._
-import com.wegtam.books.pfhais.pure.models._
-import eu.timepit.refined.auto._
+import cats.*
+import cats.effect.*
+import cats.implicits.*
+import com.wegtam.books.pfhais.db.*
+import com.wegtam.books.pfhais.models.*
 import fs2.Stream
-import io.circe.syntax._
-import org.http4s._
-import org.http4s.circe._
-import org.http4s.dsl._
+import io.circe.*
+import io.circe.generic.auto.*
+import io.circe.syntax.*
+import io.github.iltotore.iron.*
+import io.github.iltotore.iron.cats.given
+import io.github.iltotore.iron.circe.given
+import io.github.iltotore.iron.constraint.all.*
+import org.http4s.*
+import org.http4s.circe.*
+import org.http4s.dsl.*
 
-final class ProductsRoutes[F[_]: Sync](repo: Repository[F]) extends Http4sDsl[F] {
-  implicit def decodeProduct: EntityDecoder[F, Product] = jsonOf
+final class ProductsRoutes[F[_]: Concurrent](repo: Repository[F]) extends Http4sDsl[F]:
+  given EntityDecoder[F, Product] = jsonOf
 
-  val routes: HttpRoutes[F] = HttpRoutes.of[F] {
+  val routes: HttpRoutes[F] = HttpRoutes.of[F]:
     case GET -> Root / "products" =>
       val prefix = Stream.eval("[".pure[F])
       val suffix = Stream.eval("]".pure[F])
-      val ps = repo.loadProducts
+      val ps = repo.loadProducts()
         .groupAdjacentBy(_._1)
-        .map { case (id, rows) =>
+        .map: (id, rows) =>
           Product.fromDatabase(rows.toList)
-        }
-        .collect { case Some(p) =>
-          p
-        }
+        .collect{ case Some(p) => p }
         .map(_.asJson.noSpaces)
         .intersperse(",")
       @SuppressWarnings(Array("org.wartremover.warts.Any"))
@@ -45,18 +48,15 @@ final class ProductsRoutes[F[_]: Sync](repo: Repository[F]) extends Http4sDsl[F]
     case req @ POST -> Root / "products" =>
       req
         .as[Product]
-        .flatMap { p =>
-          for {
+        .flatMap: p =>
+          for
             cnt <- repo.saveProduct(p)
-            res <- cnt match {
+            res <- cnt match
               case 0 => InternalServerError()
               case _ => NoContent()
-            }
-          } yield res
-        }
-        .handleErrorWith { case InvalidMessageBodyFailure(_, _) =>
+          yield res
+        .handleErrorWith { case _ : InvalidMessageBodyFailure =>
           BadRequest()
         }
-  }
 
-}
+end ProductsRoutes

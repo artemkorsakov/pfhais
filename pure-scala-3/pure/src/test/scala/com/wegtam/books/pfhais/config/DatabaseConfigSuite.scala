@@ -18,14 +18,14 @@ import munit.ScalaCheckSuite
 import org.scalacheck.Prop.*
 import pureconfig.*
 
-class DatabaseConfigSuite extends FunSuite:
+final class DatabaseConfigSuite extends FunSuite:
   test("DatabaseConfig when loading invalid config format must fail"):
     val config = ConfigFactory.parseString("{}")
     ConfigSource.fromConfig(config).at("database").load[DatabaseConfig] match
       case Left(_)  => assert(true)
       case Right(_) => fail("Loading an invalid config must fail!")
 
-class DatabaseConfigGenSuite extends ScalaCheckSuite:
+final class DatabaseConfigGenSuite extends ScalaCheckSuite:
   property("DatabaseConfig loading valid config format when settings are invalid must fail"):
     forAll: (i: Int) =>
       val config = ConfigFactory.parseString(
