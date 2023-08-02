@@ -45,7 +45,7 @@ final class ProductRoutes[F[_]: Concurrent](repo: Repository[F]) extends Http4sD
               case 0 => NotFound()
               case _ => NoContent()
           yield res
-        .handleErrorWith { case _ : InvalidMessageBodyFailure =>
+        .handleErrorWith { case _: InvalidMessageBodyFailure =>
           BadRequest()
         }
 

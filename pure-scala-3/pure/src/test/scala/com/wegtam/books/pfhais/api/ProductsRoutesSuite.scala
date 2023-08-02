@@ -112,9 +112,9 @@ final class ProductsRoutesSuite extends CatsEffectSuite:
     "ProductsRoutes when GET /products after POST /products must return saved products"
   ):
     for
-      service        <- createService(Seq(firstProduct))
-      _              <- service.orNotFound.run(postRequest.withEntity(secondProduct.asJson.noSpaces))
-      response       <- service.orNotFound.run(getRequest)
+      service  <- createService(Seq(firstProduct))
+      _        <- service.orNotFound.run(postRequest.withEntity(secondProduct.asJson.noSpaces))
+      response <- service.orNotFound.run(getRequest)
       actualProducts <- response.as[List[Product]]
     yield assertEquals(actualProducts, products)
 

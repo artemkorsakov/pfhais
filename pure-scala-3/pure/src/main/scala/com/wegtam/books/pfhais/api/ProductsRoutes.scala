@@ -35,11 +35,12 @@ final class ProductsRoutes[F[_]: Concurrent](repo: Repository[F]) extends Http4s
     case GET -> Root / "products" =>
       val prefix = Stream.eval("[".pure[F])
       val suffix = Stream.eval("]".pure[F])
-      val ps = repo.loadProducts()
+      val ps = repo
+        .loadProducts()
         .groupAdjacentBy(_._1)
         .map: (id, rows) =>
           Product.fromDatabase(rows.toList)
-        .collect{ case Some(p) => p }
+        .collect { case Some(p) => p }
         .map(_.asJson.noSpaces)
         .intersperse(",")
       @SuppressWarnings(Array("org.wartremover.warts.Any"))
@@ -55,7 +56,7 @@ final class ProductsRoutes[F[_]: Concurrent](repo: Repository[F]) extends Http4s
               case 0 => InternalServerError()
               case _ => NoContent()
           yield res
-        .handleErrorWith { case _ : InvalidMessageBodyFailure =>
+        .handleErrorWith { case _: InvalidMessageBodyFailure =>
           BadRequest()
         }
 
