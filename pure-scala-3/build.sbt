@@ -15,7 +15,10 @@ lazy val it =
   project
     .in(file("pure-it"))
     .settings(settings)
-    .dependsOn(pure)
+    .settings(
+      libraryDependencies ++= pureLibs
+    )
+    .dependsOn(pure % "test->test;compile->compile")
 
 lazy val root =
   project
