@@ -63,14 +63,14 @@ object Pure extends IOApp:
         val productsRoutes = new ProductsRoutes(repo)
         val routes         = productRoutes.routes <+> productsRoutes.routes
         val httpApp        = Router("/" -> routes).orNotFound
-        val server         = EmberServerBuilder
+        val server = EmberServerBuilder
           .default[IO]
           .withHost(host)
           .withPort(port)
           .withHttpApp(httpApp)
         server.build.use(_ => IO(StdIn.readLine())).as(ExitCode.Success)
 
-    program.attempt.unsafeRunSync() match 
+    program.attempt.unsafeRunSync() match
       case Left(e) =>
         IO {
           println("*** An error occured! ***")

@@ -18,6 +18,8 @@ import com.wegtam.books.pfhais.config.*
 import munit.*
 import org.flywaydb.core.Flyway
 import pureconfig.ConfigSource
+import io.github.iltotore.iron.*
+import org.flywaydb.core.api.FlywayException
 
 final class FlywayDatabaseMigratorSuite extends FunSuite:
   val dbConfig = new Fixture[DatabaseConfig]("configs") {
@@ -50,31 +52,30 @@ final class FlywayDatabaseMigratorSuite extends FunSuite:
     assert(program.unsafeRunSync() > 0)
   }
 
-//      "the database is up to date" must {
-//        "return zero" in {
-//          dbConfig.map { cfg =>
-//            val migrator: DatabaseMigrator[IO] = new FlywayDatabaseMigrator
-//            val program = migrator.migrate(cfg.url, cfg.user, cfg.pass)
-//            val _ = program.unsafeRunSync
-//            program.unsafeRunSync must be(0)
-//          }
-//        }
-//      }
-//    }
-//
-//    "the database is not available" must {
-//      "throw an exception" in {
-//        val cfg = DatabaseConfig(
-//          driver = "This is no driver name!",
-//          url = "jdbc://some.host/whatever",
-//          user = "no-user",
-//          pass = "no-password"
-//        )
-//        val migrator: DatabaseMigrator[IO] = new FlywayDatabaseMigrator
-//        val program = migrator.migrate(cfg.url, cfg.user, cfg.pass)
-//        an[FlywayException] must be thrownBy program.unsafeRunSync
-//      }
-//    }
-//  }
+  test(
+    "FlywayDatabaseMigrator#migrate when the database is configured and available when the database is up to date must return zero"
+  ) {
+    val cfg                            = dbConfig()
+    val migrator: DatabaseMigrator[IO] = new FlywayDatabaseMigrator
+    val program                        = migrator.migrate(cfg.url, cfg.user, cfg.pass)
+    val _                              = program.unsafeRunSync()
+    assertEquals(0, program.unsafeRunSync())
+  }
+
+  test(
+    "FlywayDatabaseMigrator#migrate when the database is not available must throw an exception"
+  ) {
+    val cfg = DatabaseConfig(
+      driver = "This is no driver name!",
+      url = "jdbc://some.host/whatever",
+      user = "no-user",
+      pass = "no-password"
+    )
+    val migrator: DatabaseMigrator[IO] = new FlywayDatabaseMigrator
+    val program                        = migrator.migrate(cfg.url, cfg.user, cfg.pass)
+    intercept[FlywayException] {
+      program.unsafeRunSync()
+    }
+  }
 
 end FlywayDatabaseMigratorSuite
